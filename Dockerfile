@@ -7,7 +7,7 @@ COPY ./app/package.json .
 RUN npm install
 RUN apk add --no-cache ffmpeg
 
-COPY . .
+COPY ./app .
 EXPOSE 3000
 
 CMD ["node", "server.js"]

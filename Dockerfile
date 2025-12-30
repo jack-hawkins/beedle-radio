@@ -13,5 +13,5 @@ COPY . /app
 
 EXPOSE 3000
 
-#CMD ["node", "server.js"]
 RUN sh ./copyscript.sh
+CMD ["node", "/app/server.js"]

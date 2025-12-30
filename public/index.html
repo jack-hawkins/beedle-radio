@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>Radio</title>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    </head>
+    <body class="m-0 bg-black">
+        <div class="w-100 h-100 justify-content-center d-flex">
+            <div class="h-100 position-fixed" style="aspect-ratio:4/3; background-color: #212031;">
+                <div class="h-100 d-flex align-content-center">
+                    <div class="container my-auto">
+                    <div class="row">
+                        <div class="col-4">
+                            <h1 class="m-0">HNLBC RADIO</h6>
+                        </div>
+                        <div id="clock" class="col text-end">
+                        </div>
+                    </div>
+                    <div class="row mt-3"><hr></div>
+                    <div class="row mt-3">
+                        <div class="col d-flex justify-content-end">
+                            <img class="border" style="height: 400px;"/>
+                        </div>
+                        <div class="col d-flex flex-column mt-3">
+                            <h1 id="title" class="mb-3"></h1>
+                            <h4 id="artist"></h4>
+                            <h4 id="album"></h4>
+                            <div class="d-flex">
+                                <h6 id="codec" class="m-0"></h6>
+                                <div class="vr mx-2" style="width: 2px;"></div>
+                                <h6 id="bitrate" class="m-0"></h6>
+                            </div>
+                            <div id="visualizer" class="w-100 mt-auto"></div>
+                        </div>
+                    </div>
+                    <div class="row mt-3">
+                        <div id="currentTime" class="col-1"></div>
+                        <div class="col">
+                            <div class="progress px-0 bg-transparent border rounded-0" role="progressbar">
+                                <div class="progress-bar" style="width: 25%; background-color: #a5aece;"></div>
+                            </div>
+                        </div>
+                        <div id="duration" class="col-1"></div>
+                    </div>
+                </div>    
+            </div>
+        </div>
+        <audio id="player"></audio>
+         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+         <script src="https://unpkg.com/audiomotion-analyzer/dist"></script>
+        <script>
+            const audio = document.getElementById("player");
+            const currentTime = document.getElementById("currentTime");
+            const title = document.getElementById("title");
+            const artist = document.getElementById("artist");
+            const album = document.getElementById("album");
+            const codec = document.getElementById("codec");
+            const bitrate = document.getElementById("bitrate");
+            const duration = document.getElementById("duration");
+            const coverArt = document.querySelector("img");
+            const status = document.querySelector(".progress-bar");   
+
+            const audioMotion = new AudioMotionAnalyzer(
+                document.getElementById("visualizer"), {
+                source: audio,
+                height: 100,
+                ansiBands: false,
+                showScaleX: false,
+                bgAlpha: 0,
+                overlay: true,
+                mode: 1,
+                frequencyScale: "log",
+                showPeaks: false,
+                smoothing: 0.7,
+                maxFreq: 16000
+            });
+            audioMotion.registerGradient("custom",{colorStops: [ { pos: 0, color: '#a5aece' }]})
+            audioMotion.setOptions({gradient:"custom"});
+            
+            let durationInSec = 0;
+            let currentSong = null;
+
+            async function sync()
+            {
+                const res = await fetch("/now-playing");
+                const data = await res.json();
+
+                let coverArtImg = await fetch("/cover-art");
+                coverArtImg = await coverArtImg.text();
+                coverArt.src = coverArtImg;
+
+                let metadata = await fetch("/metadata");
+                metadata = await metadata.json();
+       
+                title.innerText = metadata.title;
+                artist.innerText = metadata.artist;
+                album.innerText = metadata.album;
+                codec.innerText = metadata.codec;
+                bitrate.innerText = Math.trunc(metadata.bitrate/1000) + " kbps";
+                
+                durationInSec = metadata.duration;
+                duration.innerText = formatTime(metadata.duration);
+
+                if (data.song !== currentSong)
+                {
+                    currentSong = data.song;
+                    audio.src = `/music/${data.song}`;
+
+                    audio.addEventListener("loadedmetadata", () =>
+                    {
+                        audio.currentTime = data.offset;
+                        audio.play();
+                    }, { once: true });
+                }
+            }
+
+            function updateClock()
+            {
+                const now = new Date();
+                const options = {
+                                    weekday: "long",
+                                    year: "numeric",
+                                    month: "long",
+                                    day: "numeric",
+                                    hour: "numeric",
+                                    minute: "numeric",
+                                    second: "numeric",
+                                    dayperiod: "long"
+                                };
+                const time = now.toLocaleString('en-CA', options).split(" at ");
+                document.getElementById('clock').innerHTML = `<h4 class="m-0">${time[0]}</h4><h6 class="m-0">${time[1]}</h6>`;
+            }
+
+            function formatTime(timeInSec)
+            {
+                let minutes = Math.floor(timeInSec/60);
+                let seconds = Math.floor(timeInSec%60);
+                return `${minutes}:${seconds<10 ? '0':''}${seconds}`;
+            }
+
+            audio.addEventListener('timeupdate',() => {
+                let time = audio.currentTime;
+                let percentage = ((time/durationInSec)*100).toFixed(1);
+                currentTime.innerText=formatTime(time);
+                status.style.width = percentage+"%";
+            });
+
+            sync();
+            setInterval(sync, 5000); // keep clients in sync
+            setInterval(updateClock, 1000);
+            updateClock();
+        </script>
+        <style>
+            @font-face {
+                font-family: welbutrin;
+                src: url("vhs-gothic.ttf");
+            }
+            body {
+                font-family: welbutrin;
+                color: #a5aece;
+                --bs-border-color : #a5aece;
+             }
+        </style>
+    </body>
+</html>

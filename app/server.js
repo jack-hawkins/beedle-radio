@@ -7,14 +7,16 @@ import { parseFile } from "music-metadata";
 const app = express();
 const PORT = 3000;
 
-const MUSIC_DIR = path.join(process.cwd(), "music");
+const MUSIC_DIR = path.join(path.resolve(process.cwd(), ".."), "music");
 const PUBLIC_DIR = path.join(process.cwd(), "public");
+
+const AUDIO_EXTS = new Set([".mp3", ".m4a", ".aac", ".wav", ".flac", ".ogg", ".opus", ".wma", ".aiff", ".alac"]);
 
 app.use(express.static(PUBLIC_DIR));
 app.use("/music", express.static(MUSIC_DIR));
 
-const playlist = fs.readdirSync(MUSIC_DIR).filter(f => f.endsWith(".m4a"));
-if (playlist.length === 0) throw new Error("No MP3 files found");
+const playlist = getAudioFiles(MUSIC_DIR);
+if (playlist.length === 0) throw new Error("No files found");
 
 let currentSong = null;
 let songStartTime = 0;
@@ -27,26 +29,17 @@ function getRandomSong() {
 }
 
 function getMp3Duration(filePath) {
-  return new Promise((resolve, reject) => {
-  //require ffprobe (ffmpeg)
-   execFile("ffprobe", [
-      "-v", "error",
-      "-show_entries", "format=duration",
-      "-of", "default=noprint_wrappers=1:nokey=1",
-      filePath
-    ]
-   /*execFile("C:\\ffmpeg\\bin\\ffprobe.exe", [
-      "-v", "error",
-      "-show_entries", "format=duration",
-      "-of", "default=noprint_wrappers=1:nokey=1",
-      filePath
-    ]*/
-, (err, stdout) => {
-      if (err) reject(err);
-      else resolve(Math.floor(parseFloat(stdout)));
-    });
-  });
-}
+  return new Promise((resolve, reject) =>
+    {
+        execFile("ffprobe", ["-v","error","-show_entries", "format=duration","-of", "default=noprint_wrappers=1:nokey=1",filePath], (err, stdout) =>
+          {
+            execFile("C:\\ffmpeg\\bin\\ffprobe.exe", ["-v","error","-show_entries", "format=duration","-of", "default=noprint_wrappers=1:nokey=1",filePath], (err, stdout) =>
+            {
+              if (err) reject(err);
+              else resolve(Math.floor(parseFloat(stdout)));
+            });
+          });
+  });}
 
 async function rotateSong() {
   currentSong = getRandomSong();
@@ -90,6 +83,26 @@ async function getArt(filePath)
     const defaultPath = path.join("public", "default-cover.png");
     const defaultData = fs.readFileSync(defaultPath).toString("base64");
     return `data:image/png;base64,${defaultData}`;
+}
+
+function getAudioFiles(rootDir, currentDir = rootDir) {
+  return fs.readdirSync(currentDir, { withFileTypes: true })
+    .flatMap(entry => {
+      const fullPath = path.join(currentDir, entry.name);
+
+      if (entry.isDirectory()) {
+        return getAudioFiles(rootDir, fullPath);
+      }
+
+      if (
+        entry.isFile() &&
+        AUDIO_EXTS.has(path.extname(entry.name).toLowerCase())
+      ) {
+        return path.relative(rootDir, fullPath);
+      }
+
+      return [];
+    });
 }
 
 /* ---------- initial start ---------- */

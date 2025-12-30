@@ -14,4 +14,4 @@ COPY . /app
 EXPOSE 3000
 
 #CMD ["node", "server.js"]
-RUN ./copyscript.sh
+RUN sh ./copyscript.sh

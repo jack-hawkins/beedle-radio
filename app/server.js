@@ -31,7 +31,7 @@ function getRandomSong() {
 function getMp3Duration(filePath) {
   return new Promise((resolve, reject) =>
     {
-        execFile("ffprobe", ["-v","error","-show_entries", "format=duration","-of", "default=noprint_wrappers=1:nokey=1",filePath], (err, stdout) =>
+        execFile("/usr/bin/ffprobe", ["-v","error","-show_entries", "format=duration","-of", "default=noprint_wrappers=1:nokey=1",filePath], (err, stdout) =>
           {
             execFile("C:\\ffmpeg\\bin\\ffprobe.exe", ["-v","error","-show_entries", "format=duration","-of", "default=noprint_wrappers=1:nokey=1",filePath], (err, stdout) =>
             {

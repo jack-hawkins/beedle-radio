@@ -159,7 +159,7 @@
                 status.style.width = percentage+"%";
             });
 
-            document.addEventListener("click", stopStartPlayer);
+            document.addEventListener("click", sync);
 
             sync();
             setInterval(sync, 5000); // keep clients in sync

@@ -102,18 +102,19 @@
                 durationInSec = metadata.duration;
                 duration.innerText = formatTime(metadata.duration);
 
-                if (data.song !== currentSong)
+                if (data.song !== currentSong || !isPlaying())
                 {
                     currentSong = data.song;
                     audio.src = `/music/${data.song}`;
-
-                    audio.addEventListener("loadedmetadata", () =>
-                    {
                         audio.currentTime = data.offset;
                         audio.play();
-                    }, { once: true });
                 }
             }
+
+             function isPlaying()
+                {
+                    return !audio.paused && !audio.ended && audio.readyState > 2; 
+                } 
 
             function updateClock()
             {

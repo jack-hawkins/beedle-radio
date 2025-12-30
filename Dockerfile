@@ -2,12 +2,11 @@ FROM node:18-alpine
 
 WORKDIR /usr/src/app
 
-COPY ./app/package.json .
+#COPY ./app/package.json ./app
+COPY . .
 
 RUN npm install
 RUN apk add --no-cache ffmpeg
-
-COPY ./app .
 
 EXPOSE 3000
 

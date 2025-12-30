@@ -139,12 +139,27 @@
                 return `${minutes}:${seconds<10 ? '0':''}${seconds}`;
             }
 
+            function stopStartPlayer()
+            {
+                if(isPlaying(audio))
+                    audio.pause()
+                else
+                    audio.play()
+            }
+
+            function isPlaying(player)
+            {
+                return !audio.paused && !audio.ended && audio.readyState > 2;
+            }
+
             audio.addEventListener('timeupdate',() => {
                 let time = audio.currentTime;
                 let percentage = ((time/durationInSec)*100).toFixed(1);
                 currentTime.innerText=formatTime(time);
                 status.style.width = percentage+"%";
             });
+
+            document.addEventListener("click", stopStartPlayer);
 
             sync();
             setInterval(sync, 5000); // keep clients in sync

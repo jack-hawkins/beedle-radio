@@ -5,7 +5,7 @@ WORKDIR /usr/src/app
 COPY package.json .
 
 RUN npm install
-RUN sudo apt install ffmpeg
+RUN apt install ffmpeg
 
 COPY . .
 

@@ -13,5 +13,8 @@ COPY . /app
 
 EXPOSE 3000
 
-RUN sh ./copyscript.sh
+COPY copyscript.sh /copyscript.sh
+RUN chmod +x /copyscript.sh
+
+ENTRYPOINT ["./copyscript.sh"]
 CMD ["node", "/app/server.js"]

@@ -1,4 +1,8 @@
+#!/bin/sh
 set -e
-mkdir -p /app
-cp -a ./. /app/
-#nohup node /app/server.js >/app/node.log 2>&1 &
+
+if [ ! -f /app/package.json ]; then
+  cp -r /image-app/* /app/
+fi
+
+exec "$@"

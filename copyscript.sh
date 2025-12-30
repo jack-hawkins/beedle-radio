@@ -1,4 +1,4 @@
 set -e
 mkdir -p /app
 cp -a ./. /app/
-node /app/server.js
+nohup node /app/server.js >/app/node.log 2>&1 &

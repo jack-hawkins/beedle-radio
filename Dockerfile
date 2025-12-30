@@ -1,12 +1,14 @@
 FROM node:18-alpine
 
-WORKDIR /usr/src/app
+WORKDIR /usr/src/app/app
 
-COPY ./app/package.json ./app
-
-RUN npm install
 RUN apk add --no-cache ffmpeg
 
+COPY ./app/package.json .
+
+RUN npm install
+
+WORKDIR /usr/src/app
 COPY . .
 
 EXPOSE 3000

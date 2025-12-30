@@ -2,7 +2,7 @@ FROM node:18-alpine
 
 WORKDIR /usr/src/app/app
 
-RUN apk add --no-cache ffmpeg
+
 
 COPY ./app/package.json .
 
@@ -10,6 +10,7 @@ RUN npm install
 
 WORKDIR /usr/src/app
 COPY . .
+RUN apk add --no-cache ffmpeg
 
 EXPOSE 3000
 

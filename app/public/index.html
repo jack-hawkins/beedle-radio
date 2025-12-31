@@ -59,7 +59,12 @@
             const bitrate = document.getElementById("bitrate");
             const duration = document.getElementById("duration");
             const coverArt = document.querySelector("img");
-            const status = document.querySelector(".progress-bar");   
+            const status = document.querySelector(".progress-bar");
+
+            const params = new URLSearchParams(window.location.search);
+            let playlist = params.get('playlist');
+            if(!playlist)
+                playlist = "default";
 
             const audioMotion = new AudioMotionAnalyzer(
                 document.getElementById("visualizer"), {
@@ -83,14 +88,14 @@
 
             async function sync()
             {
-                const res = await fetch("/now-playing");
+                const res = await fetch(`/now-playing/${playlist}`);
                 const data = await res.json();
 
-                let coverArtImg = await fetch("/cover-art");
+                let coverArtImg = await fetch(`/cover-art/${playlist}`);
                 coverArtImg = await coverArtImg.text();
                 coverArt.src = coverArtImg;
 
-                let metadata = await fetch("/metadata");
+                let metadata = await fetch(`/metadata/${playlist}`);
                 metadata = await metadata.json();
        
                 title.innerText = metadata.title;

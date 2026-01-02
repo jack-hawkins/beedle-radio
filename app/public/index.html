@@ -88,14 +88,11 @@
 
             async function sync()
             {
-                let res = {}
-                try
-                {
-                    const res = await fetch(`/now-playing/${playlist}`);
-                    const data = await res.json();
-                }
-                catch{window.location.href = window.location.origin + window.location.pathname;}
-                
+
+                const res = await fetch(`/now-playing/${playlist}`);
+                if (!res.ok)
+                    window.location.href = window.location.origin + window.location.pathname;
+                const data = await res.json();
 
                 let coverArtImg = await fetch(`/cover-art/${playlist}`);
                 coverArtImg = await coverArtImg.text();

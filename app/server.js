@@ -45,7 +45,6 @@ class Playlist
         filePath = filePath.replace(/\..*/,"");
         
         filePath = this.#GetFileFromName(filePath);
-        console.log(filePath);
         if(!filePath || !AUDIO_EXTS.has(path.extname(filePath)))
           continue;
         returner.push(await Song.init(filePath));
@@ -58,7 +57,7 @@ class Playlist
       let files = readdirSync(MUSIC_DIR,{withFileTypes:true,recursive:true});
       for(var f of files)
       {
-        console.log(f)
+        console.log(pathNoExtension + "  |  " + path.join(f.parentPath,f.name))
         if(f.isFile() && path.join(f.parentPath,f.name).includes(pathNoExtension))
           return pathNoExtension + path.extname(f.name);
       }

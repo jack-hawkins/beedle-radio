@@ -173,10 +173,11 @@ let playlists = [];
 playlists.push(await Playlist.init());
 
 let playlistFiles = getPlaylistFiles();
+console.log(playlistFiles);
 for(var pf of playlistFiles)
   playlists.push(await Playlist.init(pf));
 playlists = playlists.filter(i => i!=undefined)
-playlists.forEach((f) => {console.log(f.Name+": "+f.Files.length + "songs")})
+playlists.forEach((f) => {console.log(f.Name+": "+f.Files.length + " songs")})
 
 function getPlaylistFiles()
 {

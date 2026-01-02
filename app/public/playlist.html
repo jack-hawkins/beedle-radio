@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>Radio</title>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    </head>
+    <body class="m-0 bg-black">
+        <div class="w-100 h-100 justify-content-center d-flex">
+            <div class="h-100 position-fixed" style="aspect-ratio:4/3; background-color: #212031;">
+                <div class="h-100 d-flex align-content-center">
+                    <div class="container my-auto">
+                        <div class="row">
+                            <div class="col-4">
+                                <h1 class="m-0">HNLBC RADIO</h6>
+                            </div>
+                            <div id="clock" class="col text-end">
+                            </div>
+                        </div>
+                        <div class="row mt-3"><hr></div>
+                        <div class="row mt-3">
+                            <div class="col">
+                                <h3 class="m-0">Playlist</h3>
+                            </div>
+                            <div class="col">
+                                <h3 class="m-0">Now Playing</h3>
+                            </div>
+                        </div>
+                        <div id="list"></div>
+                    </div>
+                </div>    
+            </div>
+        </div>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+        <script>
+            const list = document.getElementById("list")
+            async function start()
+            {
+                let res = await fetch('/playlists');
+                res = await res.json();
+                for(var p of res)
+                {
+                    let row = document.createElement("a");
+                    row.classList.add("row","mt-2");
+                    row.href = `/?playlist=${p.name}`
+                    if(p.name == "default")
+                        row.href = "/";
+                    let name = document.createElement("div");
+                    name.classList.add("col");
+                    name.innerText = p.name;
+                    row.appendChild(name);
+
+                    let nowPlaying = document.createElement("div");
+                    nowPlaying.classList.add("col");
+                    nowPlaying.innerText = p.nowPlaying;
+                    row.appendChild(nowPlaying);
+                    list.appendChild(row);
+                }
+            } 
+
+            function updateClock()
+            {
+                const now = new Date();
+                const options = {
+                                    weekday: "long",
+                                    year: "numeric",
+                                    month: "long",
+                                    day: "numeric",
+                                    hour: "numeric",
+                                    minute: "numeric",
+                                    second: "numeric",
+                                    dayperiod: "long"
+                                };
+                const time = now.toLocaleString('en-CA', options).split(" at ");
+                document.getElementById('clock').innerHTML = `<h4 class="m-0">${time[0]}</h4><h6 class="m-0">${time[1]}</h6>`;
+            }
+
+            function formatTime(timeInSec)
+            {
+                let minutes = Math.floor(timeInSec/60);
+                let seconds = Math.floor(timeInSec%60);
+                return `${minutes}:${seconds<10 ? '0':''}${seconds}`;
+            }
+
+            start();
+            setInterval(updateClock, 1000);
+            updateClock();
+        </script>
+        <style>
+            @font-face {
+                font-family: welbutrin;
+                src: url("vhs-gothic.ttf");
+            }
+            body {
+                font-family: welbutrin;
+                color: #a5aece;
+                --bs-border-color : #a5aece;
+             }
+             a{
+                font-family: welbutrin;
+                color: #a5aece;
+                text-decoration: none;
+             }
+             a:hover{
+                background: #424061;
+             }
+        </style>
+    </body>
+</html>

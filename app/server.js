@@ -226,9 +226,12 @@ app.get("/cover-art/:playlist", async (req, res) => {
 });
 
 app.get("/playlists", async (req, res) => {
-  res.send(playlists.map(o => ({name:o.Name,nowPlaying:o.CurrentSong.Metadata.artist + " - " + o.CurrentSong.Metadata.title})));
+  res.json(playlists.map(o => ({name:o.Name,nowPlaying:o.CurrentSong.Metadata.artist + " - " + o.CurrentSong.Metadata.title})));
 });
 
+app.get("/playlist", (req, res) => {
+  res.sendFile(path.join(PUBLIC_DIR,"playlist.html"))
+});
 
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);

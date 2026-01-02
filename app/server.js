@@ -42,11 +42,24 @@ class Playlist
       {
         let filePath = s.match(/\\music\\.*/i);
         filePath = filePath[0].replace(/\\music\\/i,"");
-        if(!fs.existsSync(path.join(MUSIC_DIR,filePath)))
+        filePath = filePath.replace(/\..*/,"");
+        filePath = this.#GetFileFromName(filePath);
+        if(!filePath || !AUDIO_EXTS.includes(path.extname(filePath)))
           continue;
         returner.push(await Song.init(filePath));
       }
       return returner;
+   }
+
+   static #GetFileFromName(pathNoExtension)
+   {
+      let files = readdirSync(MUSIC_DIR,{withFileTypes:true,recursive:true});
+      for(var f of files)
+      {
+        if(f.isFile() && path.join(f.parentPath,f.name).includes(pathNoExtension))
+          return pathNoExtension + path.extname(f.name);
+      }
+      return;
    }
 
     static async #GetAudioFiles(dir)
@@ -56,7 +69,7 @@ class Playlist
       for(var f of files)
       {
         if(f.isFile() && AUDIO_EXTS.has(path.extname(f.name)))
-          returner.push(await Song.init(path.join(path.relative(dir,f.path),f.name)));
+          returner.push(await Song.init(path.join(path.relative(dir,f.parentPath),f.name)));
       }
       return returner
     }
@@ -162,6 +175,7 @@ playlists.push(await Playlist.init());
 let playlistFiles = getPlaylistFiles();
 for(var pf of playlistFiles)
   playlists.push(await Playlist.init(pf));
+playlists = playlists.filter(i => i!=undefined)
 
 function getPlaylistFiles()
 {
@@ -170,7 +184,7 @@ function getPlaylistFiles()
   for(var f of files)
   {
     if(f.isFile() && path.extname(f.name) == ".m3u8")
-      returner.push(path.join(f.path,f.name))
+      returner.push(path.join(f.parentPath,f.name))
   }
   return returner
 }
@@ -206,6 +220,10 @@ app.get("/cover-art/:playlist", async (req, res) => {
   try{playlist = getPlaylist(req.params.playlist);}catch(err){res.status(400).send("err");}
 
   res.send(playlist.CurrentSong.Art);
+});
+
+app.get("/playlists", async (req, res) => {
+  res.send(playlists.map(o => ({name:o.Name,nowPlaying:o.CurrentSong.Metadata.artist + " - " + o.CurrentSong.Metadata.title})));
 });
 
 

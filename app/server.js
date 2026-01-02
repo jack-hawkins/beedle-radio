@@ -43,6 +43,7 @@ class Playlist
         let filePath = s.match(/\\music\\.*/i);
         filePath = filePath[0].replace(/\\music\\/i,"");
         filePath = filePath.replace(/\..*/,"");
+        console.log(filePath)
         filePath = this.#GetFileFromName(filePath);
         if(!filePath || !AUDIO_EXTS.has(path.extname(filePath)))
           continue;

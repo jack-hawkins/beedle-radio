@@ -57,8 +57,7 @@ class Playlist
       let files = readdirSync(MUSIC_DIR,{withFileTypes:true,recursive:true});
       for(var f of files)
       {
-        console.log(pathNoExtension + "  |  " + path.join(f.parentPath,f.name))
-        if(f.isFile() && path.join(f.parentPath,f.name).includes(pathNoExtension))
+        if(f.isFile() && (path.join(f.parentPath,f.name).includes(pathNoExtension) || path.join(f.parentPath,f.name).includes(pathNoExtension.replaceAll('\\','/'))))
           return pathNoExtension + path.extname(f.name);
       }
       return;

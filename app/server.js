@@ -58,7 +58,7 @@ class Playlist
       for(var f of files)
       {
         if(f.isFile() && (path.join(f.parentPath,f.name).includes(pathNoExtension) || path.join(f.parentPath,f.name).includes(pathNoExtension.replaceAll('\\','/'))))
-          return path.join(path.relative(dir,f.parentPath),f.name);
+          return path.join(path.relative(MUSIC_DIR,f.parentPath),f.name);
       }
       return;
    }

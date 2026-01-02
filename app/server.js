@@ -44,7 +44,7 @@ class Playlist
         filePath = filePath[0].replace(/\\music\\/i,"");
         filePath = filePath.replace(/\..*/,"");
         filePath = this.#GetFileFromName(filePath);
-        if(!filePath || !AUDIO_EXTS.includes(path.extname(filePath)))
+        if(!filePath || !AUDIO_EXTS.has(path.extname(filePath)))
           continue;
         returner.push(await Song.init(filePath));
       }
@@ -81,7 +81,7 @@ class Playlist
 
   async RotateSong()
   {
-    this.CurrentSong = this.GetRandomSong();
+    this.CurrentSong = this.GetRandomSong(); 
     this.SongStartTime = Date.now();
     console.log(`${this.Name} Now playing: ${this.CurrentSong.Path} (${this.SongStartTime}s)`);
     console.log(this.CurrentSong.Metadata);
